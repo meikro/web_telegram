@@ -53,11 +53,11 @@ gulp.task('imagemin', function () {
 })
 
 gulp.task('less', function () {
- /* gulp.src('app/less/!*.less')
+  gulp.src(['app/less/*.less'])
     .pipe($.less({
       paths: [path.join(__dirname, 'less', 'includes')]
     }))
-    .pipe(gulp.dest('app/css'))*/
+    .pipe(gulp.dest('app/css'))
 })
 
 gulp.task('standard', function () {
