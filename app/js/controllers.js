@@ -527,6 +527,17 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         backdrop: 'single'
       })
     }
+    $scope.openCircle = function () {
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: [ window.screen.width <= 480 ? '100%' :'480px', window.screen.width <= 480 ? '100%' :'90%'],
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: $('#Circle')
+        });
+    }
 
     $scope.isHistoryPeerGroup = function () {
       return $scope.historyPeer.id < 0 && !AppPeersManager.isBroadcast($scope.historyPeer.id)
@@ -582,6 +593,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
       })
     }
+
 
     $scope.importContact = function () {
       AppUsersManager.openImportContact().then(function (foundContact) {

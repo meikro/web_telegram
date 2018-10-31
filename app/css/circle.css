@@ -1,0 +1,316 @@
+
+ul, ol, li, dl, dd {
+    margin: 0;
+    padding: 0;
+}
+
+ul, ol {
+    list-style: none outside none;
+}
+
+.page-moments {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    position: relative;
+}
+.reply-comment .comment-item{
+    padding: 5px 0;
+}
+/* header */
+.header {
+    margin-bottom: 20px;
+}
+.header-banner {
+    padding-top: 100%;
+    position: relative;
+    margin-top: -25%;
+    background: url(./../img/circle/bg.png) no-repeat;
+    background-size: cover;
+}
+.header-user {
+    display: flex;
+    margin-top: -52px;
+    align-items: center;
+    text-shadow: 1px 1px #999;
+    justify-content: flex-end;
+    position: relative;
+}
+.header-user .user-name {
+    font-size: 16px;
+    color: #fff;
+}
+.header-user .user-link {
+    padding: 2px;
+    border: 1px solid #dfdfdf;
+    background: #fff;
+    margin: 0 10px;
+}
+
+/* moments */
+
+.moments-item {
+    display: flex;
+    padding: 20px 10px;
+    border-bottom: 1px solid #dfdfdf;
+    font-size: 14px;
+    position: relative;
+}
+.moments-item .item-left {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+.moments-item .item-right {
+    flex: 1;
+    overflow: hidden;
+}
+.moments-item .item-name {
+    color: #637ab4;
+    font-size: 14px;
+    line-height: 1.6;
+}
+::-webkit-scrollbar
+{
+    width: 0;
+}
+
+.moments-item .item-share {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    background: #f3f3f3;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+.moments-item .item-share .share-img {
+    margin-right: 5px;
+}
+.moments-item .item-share .share-tt {
+    line-height: 20px;
+    max-height: 40px;
+    overflow: hidden;
+}
+.moments-item .item-only-img {
+    max-width: 180px;
+    max-height: 180px;
+    margin-top: 10px;
+}
+.moments-item .item-pic {
+    display: inline-block;
+    vertical-align: middle;
+}
+.moments-item .pic-item {
+    width: 80px;
+    height: 80px;
+    margin-right: 10px;
+    margin-top: 10px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.moments-item .item-ft {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 36px;
+    position: relative
+}
+.moments-item .item-ft .item-time {
+    color: #999;
+    font-size: 12px;
+}
+.moments-item .item-ft .item-reply-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 36px;
+    text-align: right;
+    height: 36px;
+    z-index: 2;
+    background: #fff;
+}
+.moments-item .item-ft .item-reply {
+    background: currentColor;
+    width: 16px;
+    height: 12px;
+    display: inline-block;
+    position: relative;
+    color: #8c99c1;
+    vertical-align: middle;
+}
+.moments-item .item-ft .item-reply::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border: 3px solid currentColor;
+    border-color: transparent currentColor transparent transparent;
+    border-width : 2px 3px;
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+.moments-item .item-ft .item-reply::after {
+    content: "";
+    width: 3px;
+    height: 3px;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 7px 0 0 #fff;
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translate(0, -50%);
+}
+
+.moments-item .reply-zone {
+    background: #f0f0f0;
+    margin-top: 5px;
+    position: relative;
+}
+.moments-item .reply-zone .reply-who {
+    color: #637ab4;
+}
+.moments-item .reply-zone::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 8px solid #f3f3f3;
+    border-color: transparent transparent #f3f3f3 transparent;
+    border-width: 8px 8px;
+    top: -14px;
+    left: 8px;
+}
+.moments-item .reply-like {
+    padding: 5px 8px 5px;
+    color: #637ab4;
+}
+.moments-item .icon-like-blue {
+    display: inline-block;
+    vertical-align: -3px;
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+    background: url(./../img/circle/like-blue.png) no-repeat;
+    background-size: 14px;
+}
+.moments-item .icon-like {
+    background: url(./../img/circle/like.png) no-repeat;
+}
+.moments-item .icon-comment {
+    background: url(./../img/circle/comment.png) no-repeat;
+}
+.moments-item .icon-like,
+.moments-item .icon-comment {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: cover;
+    vertical-align: middle;
+}
+.moments-item .reply-comment {
+    padding: 5px 8px;
+}
+.moments-item .reply-like+.reply-comment {
+    border-top: 1px solid #ccc;
+}
+
+.item-ft .item-reply-likelist {
+    width: 180px;
+    color: #fff;
+    background-color: #303136;
+    border-radius: 3px;
+    display: flex;
+    align-content: space-around;
+    justify-content: space-around;
+    position: absolute;
+    top: 0;
+    right: 36px;
+}
+
+.item-reply-likelist .item-reply-likelist-like,
+.item-reply-likelist .item-reply-likelist-comment {
+    cursor: pointer;
+}
+
+.item-reply-likelist .item-reply-likelist-like::before,
+.item-reply-likelist .item-reply-likelist-comment::before {
+    content: "";
+    width: 20px;
+    height: 36px;
+    float: left;
+}
+
+.item-reply-likelist .item-reply-likelist-like::before {
+    background: url("../img/circle/like.png") no-repeat left center/16px 16px;
+}
+
+.item-reply-likelist .item-reply-likelist-comment::before {
+    background: url("../img/circle/comment.png") no-repeat left center/16px 16px;
+}
+
+.item-right .item-pic .pic-wrap {
+    float: left;
+}
+
+.item-right .pic-item {
+    flex-grow: 0;
+    align-self: center;
+}
+
+.item-right .item-pic-big {
+    background: #000;
+    float: none !important;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-Index: 10;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+.item-right .pic-item.pic-mgpd {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+}
+
+.page-moments .moments-comment {
+    width: 100%;
+    max-width: 480px;
+    height: 8%;
+    background-color: #f8f8f8;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    z-index: 10;
+    bottom: 0;
+}
+
+.moments-comment .moments-comment-button {
+    padding: 8px 20px;
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+    border: none;
+    border-radius: 6px;
+    background-color: #47b111;
+}
+
+.moments-comment .moments-comment-input {
+    height: 50%;
+    width: 80%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: none;
+    padding: 0;
+}
