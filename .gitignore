@@ -13,6 +13,5 @@ dist_package
 releases
 webogram*.zip
 app/js/templates.js
-app/css
 cldr
 coverage/
