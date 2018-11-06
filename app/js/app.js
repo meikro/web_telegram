@@ -48,3 +48,33 @@ angular.module('myApp', [
   $routeProvider.when('/im', {templateUrl: templateUrl('im'), controller: 'AppIMController', reloadOnSearch: false})
   $routeProvider.otherwise({redirectTo: '/'})
 }])
+    .factory('commonUtilService', function () {
+    return {
+        encryptByDES(message, key) {
+            var message = message || '';
+            var key = key || '111111111111111111111111';
+            var keyHex = TCBSCryptoJS.enc.Utf8.parse(key);
+            var encrypted = TCBSCryptoJS.DES.encrypt(message, keyHex, {
+                iv: TCBSCryptoJS.enc.Utf8.parse('01234567'),
+                mode: TCBSCryptoJS.mode.CBC,
+                padding: TCBSCryptoJS.pad.Pkcs7
+            });
+            return encrypted.toString();
+        },
+        decryptByDES(ciphertext, key) {
+            var message = message || '';
+            var key = key || '111111111111111111111111';
+            var keyHex = TCBSCryptoJS.enc.Utf8.parse(key);
+            // direct decrypt ciphertext
+            var decrypted = TCBSCryptoJS.DES.decrypt({
+                ciphertext: TCBSCryptoJS.enc.Base64.parse(ciphertext)
+            }, keyHex, {
+                iv: TCBSCryptoJS.enc.Utf8.parse('01234567'),
+                mode: TCBSCryptoJS.mode.CBC,
+                padding: TCBSCryptoJS.pad.Pkcs7
+            });
+
+            return decrypted.toString(TCBSCryptoJS.enc.Utf8);
+        }
+    }
+})
