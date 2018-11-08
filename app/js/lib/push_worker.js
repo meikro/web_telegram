@@ -17,7 +17,7 @@ switch (location.hostname) {
 
 self.addEventListener('push', function(event) {
   var obj = event.data.json()
-  console.log('[SW] push', obj)
+  // console.log('[SW] push', obj)
 
   var hasActiveWindows = false
   var checksPromise = new Promise(function (resolve, reject) {
@@ -53,7 +53,7 @@ self.addEventListener('push', function(event) {
   })
 
   var closePromise = notificationPromise.catch(function () {
-    console.log('[SW] Closing all notifications on push', hasActiveWindows)
+    // console.log('[SW] Closing all notifications on push', hasActiveWindows)
     if (userInvisibleIsSupported() || hasActiveWindows) {
       return closeAllNotifications()
     }
@@ -76,13 +76,13 @@ self.addEventListener('install', function(event) {
   event.waitUntil(self.skipWaiting());
 });
 self.addEventListener('activate', function(event) {
-  console.log('[SW] on activate')
+  // console.log('[SW] on activate')
   event.waitUntil(self.clients.claim());
 });
 
 
 self.addEventListener('message', function(event) {
-  console.log('[SW] on message', event.data)
+  // console.log('[SW] on message', event.data)
   var client = event.ports && event.ports[0] || event.source
   if (event.data.type == 'ping') {
     if (event.data.localNotifications) {

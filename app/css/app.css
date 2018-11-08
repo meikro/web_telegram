@@ -16,6 +16,10 @@ body {
 body.non_osx {
   font: 13px/18px Tahoma, sans-serif, Arial, Helvetica;
 }
+.layui-layer.layui-layer-page{
+  /*box-shadow:none;*/
+  background: #fff;
+}
 h1,
 h2,
 h3,

@@ -517,8 +517,264 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         ChangelogNotifyService.checkUpdate()
         LayoutSwitchService.start()
     })
+    .controller('CircleCtrl',function ($scope,$http,$rootScope,commonUtilService,MtpApiManager,AppUsersManager) {
+        $rootScope.host = 'http://www.360-cloud-support.com';
+        $scope.reader = new FileReader();   //创建一个FileReader接口
+        $scope.form = {     //用于绑定提交内容，图片或其他数据
+            image:{},
+        };
+        $scope.thumb = {};      //用于存放图片的base64
+        $scope.thumb_default = {    //用于循环默认的‘加号’添加图片的框
+            1111:{}
+        };
+        $scope.user_msg = '';
+        $scope.ImagesList = [];
+        $scope.isLoad = true;
+        $scope.isissue = false;
 
-    .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, HttpsMigrateService, LayoutSwitchService, LocationParamsService, AppStickersManager) {
+        $scope.profile = {}
+        MtpApiManager.getUserID().then(function (id) {
+            $scope.profile = AppUsersManager.getUser(id)
+            console.log($scope.profile )
+        })
+
+        /**
+         * 上传图片
+         * @param files
+         */
+        $scope.img_upload = function(files) {       //单次提交图片的函数
+            var fd = new FormData();      //以下为像后台提交图片数据
+            $scope.isLoad = false;
+            $scope.guid = (new Date()).valueOf();   //通过时间戳创建一个随机数，作为键名使用
+            $scope.reader.readAsDataURL(files[0]);  //FileReader的方法，把图片转成base64
+            $scope.reader.onload = function(ev) {
+                $scope.$apply(function(){
+                    $scope.thumb[$scope.guid] = {
+                        imgSrc : ev.target.result,  //接收base64
+                    }
+                });
+            };
+
+            /*for (var i=0; i<files.length; i++) {
+                fd.append("images[]", files[i]);
+            };*/
+            fd.append("images[]", files[0]);
+            fd.append('token',getCookie('user-token'));
+            $http({
+                method: 'post',
+                url: _host+'/api/tools/uploadimages.html',
+                data:fd,
+                headers: {'Content-Type': undefined},
+                transformRequest: angular.identity
+            }).success(function(data) {
+                console.log(commonUtilService.decryptByDES(data.datas))
+                $scope.ImagesList.push( JSON.parse(commonUtilService.decryptByDES(data.datas))[0].url);
+                $scope.isLoad = true;
+            })
+        };
+
+        /**
+         * 上传视频
+         */
+        $scope.video_upload = function (files) {
+            console.log('x');
+            var fd = new FormData();      //以下为像后台提交图片数据
+            fd.append("video[]", files[0]);
+            fd.append('token',getCookie('user-token'));
+            $http({
+                method: 'post',
+                url: _host+'/api/tools/uploadvideo.html',
+                data:fd,
+                headers: {'Content-Type': undefined},
+                transformRequest: angular.identity
+            }).success(function(data) {
+                // console.log(commonUtilService.decryptByDES(data.datas))
+                // $scope.ImagesList.push( JSON.parse(commonUtilService.decryptByDES(data.datas))[0].url);
+                // $scope.isLoad = true;
+            })
+        }
+
+        /**
+         * 发布朋友圈
+         */
+        $scope.submit_form = function(){
+            // console.log($scope.ImagesList)
+            $http({
+                method: 'post',
+                url: _host+'/api/moments/save.html',
+                data:{
+                    token:getCookie('user-token'),
+                    datas:commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId:new Fingerprint().get(),
+                        pics:$scope.ImagesList.join(','),
+                        cont:$scope.user_msg,
+                        type:'2',
+                    }))
+                },
+                headers: {'Content-Type': 'application/json'}
+            }).success(function(data) {
+                if(data.code != 10000){
+                    alert(data.msg);
+                    return
+                }
+                $scope.thumb = {};
+                alert('发表成功');
+                GetCircleList();
+                $scope.user_msg = '';
+                $scope.commitSomeType = 0;
+            })
+        };
+        /**
+         * 获取朋友圈列表数据
+         */
+        GetCircleList();
+        function GetCircleList(page,pageSize) {
+            $http({
+                method: 'post',
+                url: _host+'/api/moments/friendsList.html',
+                data:{
+                    token:getCookie('user-token'),
+                    datas:commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId:new Fingerprint().get(),
+                        page:1,
+                        pageSize:10
+                    }))
+                },
+                headers: {'Content-Type': 'application/json'}
+            }).success(function(data) {
+                if(data.code != 10000){
+                    alert(data.msg);
+                    return
+                }
+                $scope.CircleList = JSON.parse(commonUtilService.decryptByDES(data.datas));
+                for(var i in $scope.CircleList.list){
+                    $scope.issuePicslist = $scope.CircleList.list[i].pics.split(',');
+                    $scope.CircleList.list[i].newParam = 'issuePicslist';
+                    $scope.CircleList.list[i].issuePicslist = $scope.issuePicslist;
+                }
+                console.log($scope.CircleList)
+            })
+
+        }
+
+        $scope.clickSelect = function (index) {
+            $('.moments-item').eq(index).find('.item-reply-likelist').show();
+        }
+        $scope.momentCont = '';
+        $scope.moment = function (moment_id,comment_id,reply_id) {
+            $scope.MommentId = moment_id || '';
+            $scope.comment_id = comment_id || '';
+            $scope.reply_id = reply_id || '';
+            $scope.momentCont = '';
+            $('.moments-comment').show();
+        };
+        $scope.momentCommit = function (id) {
+            $http({
+                method: 'post',
+                url: _host+'/api/comments/save.html',
+                data:{
+                    token:getCookie('user-token'),
+                    datas:commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId:new Fingerprint().get(),
+                        id:$scope.MommentId,
+                        cont:$scope.momentCont
+                    }))
+                },
+                headers: {'Content-Type': 'application/json'}
+            }).success(function(data) {
+                if(data.code != 10000){
+                    return;
+                }
+                GetCircleList();
+                $('.moments-comment').hide();
+                $scope.MommentId =  '';
+                $scope.comment_id = '';
+                $scope.reply_id =   '';
+                $scope.momentCont =   '';
+            })
+        }
+
+        $scope.CommentList = [];
+        $scope.ShowCommentList = function (index,id) {
+            $http({
+                method: 'post',
+                url: _host+'/api/comments/getcommentlist.html',
+                data:{
+                    token:getCookie('user-token'),
+                    datas:commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId:new Fingerprint().get(),
+                        id:id,
+                        page:1,
+                        pageSize:50
+                    }))
+                },
+                headers: {'Content-Type': 'application/json'}
+            }).success(function(data) {
+                $scope.CommentList = JSON.parse(commonUtilService.decryptByDES(data.datas)).list
+                console.log(JSON.parse(commonUtilService.decryptByDES(data.datas)).list)
+            })
+        }
+
+        $scope.zan = function (id) {
+            $http({
+                method: 'post',
+                url: _host+'/api/moments/like.html',
+                data:{
+                    token:getCookie('user-token'),
+                    datas:commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId:new Fingerprint().get(),
+                        id:id,
+                    }))
+                },
+                headers: {'Content-Type': 'application/json'}
+            }).success(function(data) {
+                console.log(data)
+                    if(data.code != 10000){
+                        return
+                    }
+                GetCircleList();
+            })
+        };
+
+        $scope.commentReturn = function (moment_id,comment_id,reply_id) {
+            $http({
+                method: 'post',
+                url: _host+'/api/replys/save.html',
+                data:{
+                    token:getCookie('user-token'),
+                    datas:commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId:new Fingerprint().get(),
+                        moment_id:$scope.MommentId,
+                        comment_id:$scope.comment_id,
+                        reply_id:$scope.reply_id,
+                        cont:$scope.momentCont,
+                    }))
+                },
+                headers: {'Content-Type': 'application/json'}
+            }).success(function(data) {
+                if(data.code != 10000){
+                    return
+                }
+                GetCircleList();
+                $('.moments-comment').hide();
+                $scope.MommentId =  '';
+                $scope.comment_id = '';
+                $scope.reply_id =   '';
+                $scope.momentCont =   '';
+            })
+        }
+        $scope.commitSomeType = 0;
+        $scope.commitSome = function (id) {
+            $scope.isissue = false;
+            $scope.commitSomeType = id;
+        }
+
+    })
+
+    .controller('AppIMController', function ($q, qSync, $scope,$http,commonUtilService, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, HttpsMigrateService, LayoutSwitchService, LocationParamsService, AppStickersManager) {
+
+
+
         $scope.$on('$routeUpdate', updateCurDialog)
 
         var pendingParams = false
@@ -596,7 +852,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 type: 1,
                 title: false,
                 closeBtn: 0,
-                area: [window.screen.width <= 480 ? '100%' : '480px', window.screen.width <= 480 ? '100%' : '90%'],
+                area: [window.screen.width <= 480 ? '100%' : '480px', window.screen.width <= 480 ? '100%' : '100%'],
                 skin: 'layui-layer-nobg', //没有背景色
                 shadeClose: true,
                 content: $('#Circle')
@@ -1318,7 +1574,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 contactsUser.push(contact)
             })
 
-            console.log('------------------------------', contactsUser);
+            // console.log(contactsUser)
 
             var friendsParams = [];
             angular.forEach(contactsUser,function (val) {
@@ -1337,7 +1593,6 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     friends:friendsParams
                 }))
             };
-            console.log(params)
 
             var req = {
                 method: 'POST',

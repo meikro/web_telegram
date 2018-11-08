@@ -15,7 +15,8 @@ ul, ol {
     position: relative;
 }
 .reply-comment .comment-item{
-    padding: 5px 0;
+    padding: 5px 15px;
+    word-break: break-all;
 }
 /* header */
 .header {
@@ -210,9 +211,9 @@ ul, ol {
     background-size: cover;
     vertical-align: middle;
 }
-.moments-item .reply-comment {
+/*.moments-item .reply-comment {
     padding: 5px 8px;
-}
+}*/
 .moments-item .reply-like+.reply-comment {
     border-top: 1px solid #ccc;
 }
