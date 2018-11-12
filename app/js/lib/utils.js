@@ -6,7 +6,7 @@
  */
 
 var _logTimer = (new Date()).getTime();
-var _host = 'http://www.360-cloud-support.com';
+var _host = 'https://www.360-cloud-support.com';
 function dT () {
   return '[' + (((new Date()).getTime() - _logTimer) / 1000).toFixed(3) + ']'
 }
