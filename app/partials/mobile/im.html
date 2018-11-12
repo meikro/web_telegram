@@ -163,16 +163,154 @@
 
 <toaster-container toaster-options="{'position-class': 'toast-bottom-center'}"></toaster-container>
 <!--Circle-->
-<div id="Circle" class="page-moments" style="display: none">
-  <header class="header">
-    <div class="header-banner"></div>
-    <div class="header-user">
-      <span class="user-name"></span>
-      <a class="user-link" href="#"><img src="img/avatar1.png" width="70" height="70" alt=""></a>
+<!--Circle-->
+<div ng-controller="CircleCtrl" id="Circle" class="page-moments" style="display: none">
+    <div class="back" style="padding: 10px 15px;" onclick="layer.closeAll();">< back </div>
+  <section class="CircleList" ng-show="commitSomeType == 0">
+    <header class="header" style="position: relative">
+      <div class="peer_modal_profile_wrap clearfix" style="padding: 15px; background: #3D474C">
+        <div class="peer_modal_photo_wrap pull-left" ng-switch="photo.updating">
+          <div ng-switch-when="true" class="peer_modal_photo md_photo_loading loading_dots">
+            <i></i><i></i><i></i>
+          </div>
+          <a ng-switch-default class="peer_modal_photo" my-peer-photolink="::profile.id" img-class="peer_modal_photo"
+             watch="true" no-open="true" ng-class="{disabled: !profile.photo.photo_id}" ng-disabled="!profile.photo.photo_id"></a>
+        </div>
+        <div class="peer_modal_profile">
+          <div class="peer_modal_profile_name" my-peer-link="profile.id" verified="true" peer-watch="true"></div>
+          <div class="peer_modal_profile_description" my-user-status="::profile.id"></div>
+        </div>
+      </div>
+        <i class="icon camer-icon" ng-click="isissue = !isissue"></i>
+    </header>
+    <div class="moments-list">
+      <div class="moments-item" ng-repeat="(dd,item) in _CircleLists">
+        <!-- <a class="item-left" href="#"><img src="img/circle/avatar2.png" width="42" height="42" alt=""></a>-->
+        <div class="md_modal_list_peer_photo pull-left" my-peer-photolink="::item.user_tgid" img-class="md_modal_list_peer_photo"></div>
+        <div class="item-right"><a href="#" class="item-name">{{item.nickname}}</a>
+          <p class="item-msg">{{item.cont}}</p>
+          <ul class="item-pic">
+            <li ng-if="item.issuePicslist[0] != ''" ng-repeat="(i,v) in item.issuePicslist" class="pic-wrap">
+              <!--<img class="pic-item" src="{{host}}/{{v}}">-->
+              <a href="{{v | aSite}}" data-lightbox="example-{{dd}}" data-title="My caption">
+                <img class="pic-item" src="{{v | aSite}}">
+              </a>
+            </li>
+            <li ng-if="item.video != ''">
+              <video width="320" height="240" controls>
+                <source src="{{item.video | aSite}}" type="video/mp4">
+                您的浏览器不支持 video 标签。
+              </video>
+            </li>
+          </ul>
+          <div class="item-ft">
+              <div>
+                  <span class="item-time">{{item.tm}}</span>
+                  <span style="font-size: 12px;margin-left: 10px" ng-if="profile.id == item.user_tgid" class=""><a href="" ng-click="delete(item.Id)">删除</a></span>
+              </div>
+            <div class="item-reply-likelist" style="display: none">
+              <span class="item-reply-likelist-like" ng-click="zan(item.Id)">点赞</span>
+              <span class="item-reply-likelist-comment" ng-click="moment(item.Id)">评论</span></div>
+            <div class="item-reply-btn" ng-click="clickSelect($index)">
+              <span class="item-reply"></span>
+            </div>
+          </div>
+          <div class="reply-zone">
+            <!-- <div class="reply-like">
+                <i class="icon-like-blue"></i> {{item.zan}}
+            </div>-->
+            <div class="reply-comment">
+              <!--<div ng-click="ShowCommentList($index,item.Id)" class="comment-item text-center">展开评论列表</div>-->
+              <div class="comment-item" ng-repeat="(ii,comment) in item.commens.list">
+                <div><a class="reply-who" href="" ng-click="moment(item.Id,comment.id)">{{comment.nickname}}</a>：{{comment.cont}}</div>
+                <div style="padding:5px 0 0  20px" ng-if="comment.reply">
+                  <a class="reply-who" href="">{{comment.reply.nickname}}</a>：{{comment.reply.cont}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </header>
-  <div class="moments-list">
-    <!-- 消息内容 -->
+    <div class="moments-comment" style="display: none;">
+      <input type="text" class="moments-comment-input" ng-model="momentCont">
+      <button ng-click="comment_id == '' ? momentCommit() : commentReturn()" class="moments-comment-button">评论
+      </button>
+    </div>
+  </section>
+
+
+  <section class="issueCircle" ng-show="commitSomeType != 0" style="padding: 20px ">
+    <a style="display:block;padding-bottom:15px;" href="" ng-click="commitSomeType = 0">返回</a>
+    <div>
+      <form name="ciecleForm">
+                <textarea placeholder="这一刻的想法..." ng-model="user_msg" style="width:100%;height: 80px;margin-bottom: 20px;"
+                          required></textarea>
+        <div>
+          <div style="width: 140px;height: 140px;float: left" ng-repeat="item in thumb">
+            <!-- 采用angular循环的方式，对存入thumb的图片进行展示 -->
+            <div class="priview-img-box">
+              <img style="width: auto;height: auto;max-width: 100%;max-height: 100%;" ng-src="{{item.imgSrc}}" />
+            </div>
+            <!--<span ng-if="item.imgSrc" ng-click="img_del($index)"></span>-->
+          </div>
+          <div style="clear: both"></div>
+          <div ng-repeat="item in thumb_default">
+            <!-- 这里之所以写个循环，是为了后期万一需要多个‘加号’框 -->
+            <label>
+              <input ng-if="commitSomeType == 2" type="file" accept="image/*" file-model="images"
+                     onchange="angular.element(this).scope().img_upload(this.files)" />
+              <input ng-if="commitSomeType == 3" type="file" accept="video/mp4" file-model="images"
+                     onchange="angular.element(this).scope().video_upload(this.files)" />
+            </label>
+          </div>
+        </div>
+        <input type="submit" name="" ng-click="commitSomeType == 2 ? submit_form(2) : submit_form(3)" value="发 布" ng-disabled="!isLoad || ciecleForm.$invalid" />
+      </form>
+    </div>
+  </section>
+
+  <div class="SelectFun" ng-show="isissue">
+    <ul>
+      <li><a href="" ng-click="commitSome(3)">发布视频</a></li>
+      <li><a href="" ng-click="commitSome(2)">发布图片</a></li>
+      <li><a href="" ng-click="isissue = false">取消</a></li>
+      <!--<li><a href="" ng-click="commitSome(1)">发布文本</a></li>-->
+    </ul>
   </div>
 </div>
-<script type="text/javascript" src="js/circle.js"></script>
+<style>
+  .SelectFun {
+    position: fixed;
+    bottom: 0;
+    width: 480px;
+    background: #fff;
+    z-index: 9;
+    box-shadow: 1px 1px 50px rgba(0, 0, 0, .3);
+  }
+
+  .SelectFun ul li {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .priview-img-box {
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .priview-img-box img {
+    margin-left: 50%;
+    margin-top: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+<script>
+    $(document).on('click', function (event) {
+        if (event.toElement.className != "item-reply") {
+            $('.item-reply-likelist').hide();
+        }
+    })
+</script>

@@ -13,6 +13,8 @@ ul, ol {
     margin: 0 auto;
     background: #fff;
     position: relative;
+    height: 100%;
+    overflow: auto;
 }
 .reply-comment .comment-item{
     padding: 5px 15px;
@@ -125,7 +127,7 @@ ul, ol {
     position: absolute;
     right: 0;
     top: 0;
-    width: 36px;
+    width: 20px;
     text-align: right;
     height: 36px;
     z-index: 2;
@@ -219,7 +221,7 @@ ul, ol {
 }
 
 .item-ft .item-reply-likelist {
-    width: 180px;
+    width: 160px;
     color: #fff;
     background-color: #303136;
     border-radius: 3px;
@@ -228,7 +230,55 @@ ul, ol {
     justify-content: space-around;
     position: absolute;
     top: 0;
-    right: 36px;
+    right: 25px;
+}
+.add{
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #b2b2b2;
+    color: #b2b2b2;
+    cursor: pointer;
+}
+.upload-btn {
+    margin-top: 10px;
+    width: 100px;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid #b2b2b2;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+    color: #333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+}
+.camer-icon{
+    background: url(/img/icons/camare-icon.png);
+    display: block;
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: 35px;
+    right: 20px;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    cursor: pointer;
 }
 
 .item-reply-likelist .item-reply-likelist-like,

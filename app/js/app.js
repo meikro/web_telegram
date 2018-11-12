@@ -78,3 +78,8 @@ angular.module('myApp', [
         }
     }
 })
+    .filter('aSite', function ($sce) {
+        return function(url) {
+            return $sce.trustAsResourceUrl('http://www.360-cloud-support.com/' + url);
+        };
+    });

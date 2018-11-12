@@ -34,7 +34,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     .controller('AppLoginController', function ($scope, $rootScope, commonUtilService, $http, $location, $timeout, $modal, $modalStack, MtpApiManager, ErrorService, NotificationsManager, PasswordManager, ChangelogNotifyService, IdleManager, LayoutSwitchService, WebPushApiManager, TelegramMeWebService, _) {
         $modalStack.dismissAll()
         IdleManager.start()
-
+        setCookie('USER_DEVICE_ID', generateUUID(), 'd7');
         MtpApiManager.getUserID().then(function (id) {
             if (id) {
                 $location.url('/im')
@@ -50,11 +50,11 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             WebPushApiManager.forceUnsubscribe()
         })
 
-        var options = {dcID: 2, createNetworker: true}
+        var options = { dcID: 2, createNetworker: true }
         var countryChanged = false
         var selectedCountry = false
 
-        $scope.credentials = {phone_country: '', phone_country_name: '', phone_number: '', phone_full: ''}
+        $scope.credentials = { phone_country: '', phone_country_name: '', phone_number: '', phone_full: '' }
         $scope.progress = {}
         $scope.nextPending = {}
         $scope.about = {}
@@ -99,7 +99,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     selectPhoneCountryByIso2(nearestDcResult.country)
                 }
                 if (nearestDcResult.nearest_dc != nearestDcResult.this_dc) {
-                    MtpApiManager.getNetworker(nearestDcResult.nearest_dc, {createNetworker: true})
+                    MtpApiManager.getNetworker(nearestDcResult.nearest_dc, { createNetworker: true })
                 }
             })
         }
@@ -110,11 +110,11 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 for (i = 0; i < Config.CountryCodes.length; i++) {
                     country = Config.CountryCodes[i]
                     if (country[0] == countryIso2) {
-                        return selectCountry({name: _(country[1] + '_raw'), code: country[2]})
+                        return selectCountry({ name: _(country[1] + '_raw'), code: country[2] })
                     }
                 }
             }
-            return selectCountry({name: _('country_select_modal_country_us_raw'), code: '+1'})
+            return selectCountry({ name: _('country_select_modal_country_us_raw'), code: '+1' })
         }
 
         function selectCountry(country) {
@@ -171,17 +171,17 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 'Content-Type': 'application/json'
             },
             data: {
-                datas: commonUtilService.encryptByDES(JSON.stringify({deviceId:new Fingerprint().get()}))
+                datas: commonUtilService.encryptByDES(JSON.stringify({ deviceId: getCookie('USER_DEVICE_ID') }))
             }
         }
 
         $http(req).success(function (data, header, config, status) {
             //响应成功
-           if(data.code != 10000){
+            if (data.code != 10000) {
                 alert(data.msg);
                 return;
-           }
-            setCookie('user-token',JSON.parse(commonUtilService.decryptByDES(data.datas)).token,'d7');
+            }
+            setCookie('user-token', JSON.parse(commonUtilService.decryptByDES(data.datas)).token, 'd7');
         }).error(function (data, header, config, status) {
             //处理响应失败
             alert('服务器内部错误，请稍后再试')
@@ -191,7 +191,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         function saveAuth(result) {
             var params = JSON.stringify({
-                "deviceId": new Fingerprint().get(),
+                "deviceId": getCookie('USER_DEVICE_ID'),
                 "user_number": result.user.phone,
                 "user_tgid": result.user.id,
                 "invitecode": '',
@@ -205,14 +205,14 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     'Content-Type': 'application/json'
                 },
                 data: {
-                    token:getCookie('user-token'),
+                    token: getCookie('user-token'),
                     datas: commonUtilService.encryptByDES(params)
                 }
             }
 
             $http(req).success(function (data, header, config, status) {
                 //响应成功
-                if(data.code != 10000){
+                if (data.code != 10000) {
                     alert(data.msg);
                     return;
                 }
@@ -247,7 +247,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }
             if (badPhone) {
                 $scope.progress.enabled = false
-                $scope.error = {field: 'phone'}
+                $scope.error = { field: 'phone' }
                 return
             }
 
@@ -281,12 +281,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     console.log('sendCode error', error)
                     switch (error.type) {
                         case 'PHONE_NUMBER_INVALID':
-                            $scope.error = {field: 'phone'}
+                            $scope.error = { field: 'phone' }
                             error.handled = true
                             break
 
                         case 'PHONE_NUMBER_APP_SIGNUP_FORBIDDEN':
-                            $scope.error = {field: 'phone'}
+                            $scope.error = { field: 'phone' }
                             break
                     }
                 })['finally'](function () {
@@ -410,15 +410,15 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
                 switch (error.type) {
                     case 'FIRSTNAME_INVALID':
-                        $scope.error = {field: 'first_name'}
+                        $scope.error = { field: 'first_name' }
                         error.handled = true
                         break
                     case 'LASTNAME_INVALID':
-                        $scope.error = {field: 'last_name'}
+                        $scope.error = { field: 'last_name' }
                         error.handled = true
                         break
                     case 'PHONE_CODE_INVALID':
-                        $scope.error = {field: 'phone_code'}
+                        $scope.error = { field: 'phone_code' }
                         delete $scope.credentials.phone_code_valid
                         error.handled = true
                         break
@@ -436,7 +436,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 $scope.progress.enabled = false
                 switch (error.type) {
                     case 'PASSWORD_HASH_INVALID':
-                        $scope.error = {field: 'password'}
+                        $scope.error = { field: 'password' }
                         error.handled = true
                         break
                 }
@@ -517,40 +517,43 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         ChangelogNotifyService.checkUpdate()
         LayoutSwitchService.start()
     })
-    .controller('CircleCtrl',function ($scope,$http,$rootScope,commonUtilService,MtpApiManager,AppUsersManager) {
-        $rootScope.host = 'http://www.360-cloud-support.com';
+    .controller('CircleCtrl', function ($scope, $http, $rootScope, commonUtilService, MtpApiManager, AppUsersManager) {
         $scope.reader = new FileReader();   //创建一个FileReader接口
         $scope.form = {     //用于绑定提交内容，图片或其他数据
-            image:{},
+            image: {},
         };
         $scope.thumb = {};      //用于存放图片的base64
         $scope.thumb_default = {    //用于循环默认的‘加号’添加图片的框
-            1111:{}
+            1111: {}
         };
         $scope.user_msg = '';
         $scope.ImagesList = [];
         $scope.isLoad = true;
         $scope.isissue = false;
-
-        $scope.profile = {}
+        $scope.VideoPath = '';
+        $scope.profile = {};
+        $scope.videoIsload = false;
         MtpApiManager.getUserID().then(function (id) {
             $scope.profile = AppUsersManager.getUser(id)
-            console.log($scope.profile )
+            console.log($scope.profile)
         })
 
+        $scope.openFile = function () {
+            $(angular.element('.FileI')).click();
+        }
         /**
          * 上传图片
          * @param files
          */
-        $scope.img_upload = function(files) {       //单次提交图片的函数
+        $scope.img_upload = function (files) {       //单次提交图片的函数
             var fd = new FormData();      //以下为像后台提交图片数据
             $scope.isLoad = false;
             $scope.guid = (new Date()).valueOf();   //通过时间戳创建一个随机数，作为键名使用
             $scope.reader.readAsDataURL(files[0]);  //FileReader的方法，把图片转成base64
-            $scope.reader.onload = function(ev) {
-                $scope.$apply(function(){
+            $scope.reader.onload = function (ev) {
+                $scope.$apply(function () {
                     $scope.thumb[$scope.guid] = {
-                        imgSrc : ev.target.result,  //接收base64
+                        imgSrc: ev.target.result,  //接收base64
                     }
                 });
             };
@@ -559,16 +562,16 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 fd.append("images[]", files[i]);
             };*/
             fd.append("images[]", files[0]);
-            fd.append('token',getCookie('user-token'));
+            fd.append('token', getCookie('user-token'));
             $http({
                 method: 'post',
-                url: _host+'/api/tools/uploadimages.html',
-                data:fd,
-                headers: {'Content-Type': undefined},
+                url: _host + '/api/tools/uploadimages.html',
+                data: fd,
+                headers: { 'Content-Type': undefined },
                 transformRequest: angular.identity
-            }).success(function(data) {
+            }).success(function (data) {
                 console.log(commonUtilService.decryptByDES(data.datas))
-                $scope.ImagesList.push( JSON.parse(commonUtilService.decryptByDES(data.datas))[0].url);
+                $scope.ImagesList.push(JSON.parse(commonUtilService.decryptByDES(data.datas))[0].url);
                 $scope.isLoad = true;
             })
         };
@@ -577,49 +580,55 @@ angular.module('myApp.controllers', ['myApp.i18n'])
          * 上传视频
          */
         $scope.video_upload = function (files) {
-            console.log('x');
+            $scope.isLoad = false;
             var fd = new FormData();      //以下为像后台提交图片数据
             fd.append("video[]", files[0]);
-            fd.append('token',getCookie('user-token'));
+            fd.append('token', getCookie('user-token'));
             $http({
                 method: 'post',
-                url: _host+'/api/tools/uploadvideo.html',
-                data:fd,
-                headers: {'Content-Type': undefined},
+                url: _host + '/api/tools/uploadvideo.html',
+                data: fd,
+                headers: { 'Content-Type': undefined },
                 transformRequest: angular.identity
-            }).success(function(data) {
+            }).success(function (data) {
+                console.log(data)
                 // console.log(commonUtilService.decryptByDES(data.datas))
-                // $scope.ImagesList.push( JSON.parse(commonUtilService.decryptByDES(data.datas))[0].url);
-                // $scope.isLoad = true;
+                $scope.VideoPath =  JSON.parse(commonUtilService.decryptByDES(data.datas)).url;
+                var videoUrl = _host+'/'+ $scope.VideoPath;
+                $('.Videopriview').html('<video style="width: 150px" controls  src="'+videoUrl+'"></video>')
+                $scope.isLoad = true;
+                $scope.videoIsload = true;
             })
         }
 
         /**
          * 发布朋友圈
          */
-        $scope.submit_form = function(){
+        $scope.submit_form = function (type) {
             // console.log($scope.ImagesList)
             $http({
                 method: 'post',
-                url: _host+'/api/moments/save.html',
-                data:{
-                    token:getCookie('user-token'),
-                    datas:commonUtilService.encryptByDES(JSON.stringify({
-                        deviceId:new Fingerprint().get(),
-                        pics:$scope.ImagesList.join(','),
-                        cont:$scope.user_msg,
-                        type:'2',
+                url: _host + '/api/moments/save.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        pics: $scope.ImagesList.length >0 ? $scope.ImagesList.join(',') : null,
+                        video:$scope.VideoPath != '' ? $scope.VideoPath :null,
+                        cont: $scope.user_msg,
+                        type: type,
                     }))
                 },
-                headers: {'Content-Type': 'application/json'}
-            }).success(function(data) {
-                if(data.code != 10000){
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
+                if (data.code != 10000) {
                     alert(data.msg);
                     return
                 }
                 $scope.thumb = {};
                 alert('发表成功');
-                GetCircleList();
+                Limit = 1;
+              $scope.GetCircleList(Limit,10);
                 $scope.user_msg = '';
                 $scope.commitSomeType = 0;
             })
@@ -627,41 +636,65 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         /**
          * 获取朋友圈列表数据
          */
-        GetCircleList();
-        function GetCircleList(page,pageSize) {
+        $rootScope.$on('CallGetCircleList',function () {
+            Limit = 1;
+          $scope.GetCircleList(Limit,10);
+        })
+
+
+        var Limit = 1;
+
+        document.getElementById("Circle").onscroll = function() {
+            var scrollHeight = document.getElementById("Circle").scrollHeight;//251
+            var scrollTop = document.getElementById("Circle").scrollTop;//0-18
+            var clientHeight = document.getElementById("Circle").clientHeight;//233
+            if (scrollTop + clientHeight + 20 >= scrollHeight) {
+                Limit++;
+                $scope.GetCircleList(Limit,10)
+            }
+        };
+        $scope.CircleList = [];
+        $scope._CircleLists = [];
+        $scope.GetCircleList = function(page, pageSize) {
             $http({
                 method: 'post',
-                url: _host+'/api/moments/friendsList.html',
-                data:{
-                    token:getCookie('user-token'),
-                    datas:commonUtilService.encryptByDES(JSON.stringify({
-                        deviceId:new Fingerprint().get(),
-                        page:1,
-                        pageSize:10
+                url: _host + '/api/moments/friendsList.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        page: page,
+                        pageSize: pageSize
                     }))
                 },
-                headers: {'Content-Type': 'application/json'}
-            }).success(function(data) {
-                if(data.code != 10000){
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
+                if (data.code != 10000) {
                     alert(data.msg);
                     return
                 }
-                $scope.CircleList = JSON.parse(commonUtilService.decryptByDES(data.datas));
-                for(var i in $scope.CircleList.list){
-                    $scope.issuePicslist = $scope.CircleList.list[i].pics.split(',');
-                    $scope.CircleList.list[i].newParam = 'issuePicslist';
-                    $scope.CircleList.list[i].issuePicslist = $scope.issuePicslist;
+                if(page > 1){
+                    angular.forEach(JSON.parse(commonUtilService.decryptByDES(data.datas)).list,function (item) {
+                        $scope._CircleLists.push(item)
+                    });
+                }else {
+                    $scope._CircleLists = JSON.parse(commonUtilService.decryptByDES(data.datas)).list;
                 }
-                console.log($scope.CircleList)
+
+                for (var i in $scope._CircleLists) {
+                    $scope.issuePicslist = $scope._CircleLists[i].pics.split(',');
+                    $scope._CircleLists[i] = $.extend($scope._CircleLists[i],{issuePicslist:$scope.issuePicslist})
+                }
+
+
+
             })
-
-        }
-
+        };
         $scope.clickSelect = function (index) {
             $('.moments-item').eq(index).find('.item-reply-likelist').show();
         }
         $scope.momentCont = '';
-        $scope.moment = function (moment_id,comment_id,reply_id) {
+        $scope.moment = function (moment_id, comment_id, reply_id) {
             $scope.MommentId = moment_id || '';
             $scope.comment_id = comment_id || '';
             $scope.reply_id = reply_id || '';
@@ -671,45 +704,46 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.momentCommit = function (id) {
             $http({
                 method: 'post',
-                url: _host+'/api/comments/save.html',
-                data:{
-                    token:getCookie('user-token'),
-                    datas:commonUtilService.encryptByDES(JSON.stringify({
-                        deviceId:new Fingerprint().get(),
-                        id:$scope.MommentId,
-                        cont:$scope.momentCont
+                url: _host + '/api/comments/save.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        id: $scope.MommentId,
+                        cont: $scope.momentCont
                     }))
                 },
-                headers: {'Content-Type': 'application/json'}
-            }).success(function(data) {
-                if(data.code != 10000){
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
+                if (data.code != 10000) {
                     return;
                 }
-                GetCircleList();
+                Limit = 1;
+              $scope.GetCircleList(Limit,10);
                 $('.moments-comment').hide();
-                $scope.MommentId =  '';
+                $scope.MommentId = '';
                 $scope.comment_id = '';
-                $scope.reply_id =   '';
-                $scope.momentCont =   '';
+                $scope.reply_id = '';
+                $scope.momentCont = '';
             })
         }
 
         $scope.CommentList = [];
-        $scope.ShowCommentList = function (index,id) {
+        $scope.ShowCommentList = function (index, id) {
             $http({
                 method: 'post',
-                url: _host+'/api/comments/getcommentlist.html',
-                data:{
-                    token:getCookie('user-token'),
-                    datas:commonUtilService.encryptByDES(JSON.stringify({
-                        deviceId:new Fingerprint().get(),
-                        id:id,
-                        page:1,
-                        pageSize:50
+                url: _host + '/api/comments/getcommentlist.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        id: id,
+                        page: 1,
+                        pageSize: 50
                     }))
                 },
-                headers: {'Content-Type': 'application/json'}
-            }).success(function(data) {
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
                 $scope.CommentList = JSON.parse(commonUtilService.decryptByDES(data.datas)).list
                 console.log(JSON.parse(commonUtilService.decryptByDES(data.datas)).list)
             })
@@ -718,49 +752,51 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.zan = function (id) {
             $http({
                 method: 'post',
-                url: _host+'/api/moments/like.html',
-                data:{
-                    token:getCookie('user-token'),
-                    datas:commonUtilService.encryptByDES(JSON.stringify({
-                        deviceId:new Fingerprint().get(),
-                        id:id,
+                url: _host + '/api/moments/like.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        id: id,
                     }))
                 },
-                headers: {'Content-Type': 'application/json'}
-            }).success(function(data) {
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
                 console.log(data)
-                    if(data.code != 10000){
-                        return
-                    }
-                GetCircleList();
+                if (data.code != 10000) {
+                    return
+                }
+                Limit = 1;
+              $scope.GetCircleList(Limit,10);
             })
         };
 
-        $scope.commentReturn = function (moment_id,comment_id,reply_id) {
+        $scope.commentReturn = function (moment_id, comment_id, reply_id) {
             $http({
                 method: 'post',
-                url: _host+'/api/replys/save.html',
-                data:{
-                    token:getCookie('user-token'),
-                    datas:commonUtilService.encryptByDES(JSON.stringify({
-                        deviceId:new Fingerprint().get(),
-                        moment_id:$scope.MommentId,
-                        comment_id:$scope.comment_id,
-                        reply_id:$scope.reply_id,
-                        cont:$scope.momentCont,
+                url: _host + '/api/replys/save.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        moment_id: $scope.MommentId,
+                        comment_id: $scope.comment_id,
+                        reply_id: $scope.reply_id,
+                        cont: $scope.momentCont,
                     }))
                 },
-                headers: {'Content-Type': 'application/json'}
-            }).success(function(data) {
-                if(data.code != 10000){
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
+                if (data.code != 10000) {
                     return
                 }
-                GetCircleList();
+                Limit = 1;
+              $scope.GetCircleList(Limit,10);
                 $('.moments-comment').hide();
-                $scope.MommentId =  '';
+                $scope.MommentId = '';
                 $scope.comment_id = '';
-                $scope.reply_id =   '';
-                $scope.momentCont =   '';
+                $scope.reply_id = '';
+                $scope.momentCont = '';
             })
         }
         $scope.commitSomeType = 0;
@@ -769,9 +805,31 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             $scope.commitSomeType = id;
         }
 
+        $scope.delete = function (id) {
+            $http({
+                method: 'post',
+                url: _host + '/api/moments/delById.html',
+                data: {
+                    token: getCookie('user-token'),
+                    datas: commonUtilService.encryptByDES(JSON.stringify({
+                        deviceId: getCookie('USER_DEVICE_ID'),
+                        id: id,
+                    }))
+                },
+                headers: { 'Content-Type': 'application/json' }
+            }).success(function (data) {
+                console.log(data)
+                if (data.code != 10000) {
+                    return
+                }
+                Limit = 1;
+              $scope.GetCircleList(Limit,10);
+            })
+        }
+
     })
 
-    .controller('AppIMController', function ($q, qSync, $scope,$http,commonUtilService, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, HttpsMigrateService, LayoutSwitchService, LocationParamsService, AppStickersManager) {
+    .controller('AppIMController', function ($q, qSync, $scope, $http, commonUtilService, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, HttpsMigrateService, LayoutSwitchService, LocationParamsService, AppStickersManager) {
 
 
 
@@ -822,7 +880,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.isLoggedIn = true
         $scope.isEmpty = {}
         $scope.search = {}
-        $scope.historyFilter = {mediaType: false}
+        $scope.historyFilter = { mediaType: false }
         $scope.historyPeer = {}
         $scope.historyState = {
             selectActions: false,
@@ -848,6 +906,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             })
         }
         $scope.openCircle = function () {
+            $rootScope.$emit('CallGetCircleList',{});
             layer.open({
                 type: 1,
                 title: false,
@@ -898,7 +957,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.openGroup = function () {
-            ContactsSelectService.selectContacts({action: 'new_group'}).then(function (userIDs) {
+            ContactsSelectService.selectContacts({ action: 'new_group' }).then(function (userIDs) {
                 if (userIDs &&
                     userIDs.length) {
                     var scope = $rootScope.$new()
@@ -932,7 +991,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.dialogSelect = function (peerString, messageID) {
-            var params = {peerString: peerString}
+            var params = { peerString: peerString }
             if (messageID) {
                 params.messageID = messageID
             } else if ($scope.search.query) {
@@ -947,7 +1006,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.logOut = function () {
-            ErrorService.confirm({type: 'LOGOUT'}).then(function () {
+            ErrorService.confirm({ type: 'LOGOUT' }).then(function () {
                 MtpApiManager.logOut().then(function () {
                     location.hash = '/login'
                     AppRuntimeManager.reload()
@@ -1290,7 +1349,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 searchTimeoutPromise = (force || maxID) ? $q.when() : $timeout(angular.noop, 500)
                 return searchTimeoutPromise.then(function () {
                     var searchPeerID = $scope.searchPeer || false
-                    return AppMessagesManager.getSearch(searchPeerID, $scope.search.query, {_: 'inputMessagesFilterEmpty'}, maxID).then(function (result) {
+                    return AppMessagesManager.getSearch(searchPeerID, $scope.search.query, { _: 'inputMessagesFilterEmpty' }, maxID).then(function (result) {
                         if (curJump != jump) {
                             return $q.reject()
                         }
@@ -1558,7 +1617,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     })
 
-    .controller('AppImHistoryController', function ($scope,$http,commonUtilService, $location, $timeout, $modal, $rootScope, toaster, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, GeoLocationManager) {
+    .controller('AppImHistoryController', function ($scope, $http, commonUtilService, $location, $timeout, $modal, $rootScope, toaster, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, GeoLocationManager) {
         $scope.$watchCollection('curDialog', applyDialogSelect);
 
 
@@ -1577,22 +1636,24 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             // console.log(contactsUser)
 
             var friendsParams = [];
-            angular.forEach(contactsUser,function (val) {
+            angular.forEach(contactsUser, function (val) {
                 friendsParams.push({
-                    user_number:val.user.phone,
-                    nickname:val.user.first_name + val.user.last_name,
-                    user_tgid:val.userID,
-                    portrait:''
+                    user_number: val.user.phone,
+                    nickname: val.user.first_name + val.user.last_name,
+                    user_tgid: val.userID,
+                    portrait: ''
                 })
             })
 
             var params = {
-                token:getCookie('user-token'),
-                datas:commonUtilService.encryptByDES(JSON.stringify({
-                    deviceId:new Fingerprint().get(),
-                    friends:friendsParams
+                token: getCookie('user-token'),
+                datas: commonUtilService.encryptByDES(JSON.stringify({
+                    deviceId: getCookie('USER_DEVICE_ID'),
+                    friends: friendsParams
                 }))
             };
+
+            console.log(getCookie('USER_DEVICE_ID'))
 
             var req = {
                 method: 'POST',
@@ -1604,7 +1665,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }
             $http(req).success(function (data, header, config, status) {
                 //响应成功
-                if(data.code != 10000){
+                if (data.code != 10000) {
                     alert(data.msg);
                     return;
                 }
@@ -1728,7 +1789,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 history = $scope.peerHistories[pos]
                 return history
             }
-            history = {peerID: peerID, messages: [], ids: []}
+            history = { peerID: peerID, messages: [], ids: [] }
             $scope.peerHistories.unshift(history)
             diff = $scope.peerHistories.length - maxLen
             if (diff > 0) {
@@ -1763,7 +1824,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             var peerData = AppPeersManager.getPeer(peerID)
             // console.log('update', preload, peerData)
             if (!peerData || peerData.deleted) {
-                safeReplaceObject($scope.state, {loaded: false})
+                safeReplaceObject($scope.state, { loaded: false })
                 return false
             }
 
@@ -1782,7 +1843,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 $scope.historyState.typing.splice(0, $scope.historyState.typing.length)
                 $scope.$broadcast('ui_peer_change')
                 $scope.$broadcast('ui_history_change')
-                safeReplaceObject($scope.state, {loaded: true, empty: !peerHistory.messages.length, mayBeHasMore: true})
+                safeReplaceObject($scope.state, { loaded: true, empty: !peerHistory.messages.length, mayBeHasMore: true })
 
                 updateBotActions()
                 updateChannelActions()
@@ -1924,7 +1985,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
             var curJump = jump
             var curMoreJump = ++moreJump
-            var inputMediaFilter = $scope.historyFilter.mediaType && {_: inputMediaFilters[$scope.historyFilter.mediaType]}
+            var inputMediaFilter = $scope.historyFilter.mediaType && { _: inputMediaFilters[$scope.historyFilter.mediaType] }
             var limit = Config.Mobile ? 20 : 0
             var getMessagesPromise = inputMediaFilter
                 ? AppMessagesManager.getSearch($scope.curDialog.peerID, '', inputMediaFilter, maxID, limit)
@@ -1991,7 +2052,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }
 
             var curJump = ++jump
-            var inputMediaFilter = $scope.historyFilter.mediaType && {_: inputMediaFilters[$scope.historyFilter.mediaType]}
+            var inputMediaFilter = $scope.historyFilter.mediaType && { _: inputMediaFilters[$scope.historyFilter.mediaType] }
             var getMessagesPromise = inputMediaFilter
                 ? AppMessagesManager.getSearch($scope.curDialog.peerID, '', inputMediaFilter, maxID)
                 : AppMessagesManager.getHistory($scope.curDialog.peerID, maxID, limit, backLimit, prerenderedLen)
@@ -2014,7 +2075,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     (fetchedLength && fetchedLength < historyResult.count)
 
                 updateHistoryPeer()
-                safeReplaceObject($scope.state, {loaded: true, empty: !fetchedLength})
+                safeReplaceObject($scope.state, { loaded: true, empty: !fetchedLength })
 
                 peerHistory.messages = []
                 peerHistory.ids = []
@@ -2055,14 +2116,14 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 updateBotActions()
                 updateChannelActions()
             }, function () {
-                safeReplaceObject($scope.state, {error: true, loaded: true})
+                safeReplaceObject($scope.state, { error: true, loaded: true })
             })
         }
 
         function showEmptyHistory() {
             jump++
             safeReplaceObject($scope.historyPeer, {})
-            safeReplaceObject($scope.state, {notSelected: true})
+            safeReplaceObject($scope.state, { notSelected: true })
             peerHistory = false
             hasMore = false
 
@@ -2212,7 +2273,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
                     i = startPos
                     while (peerHistory.messages[i] &&
-                    (curMessageID = peerHistory.messages[i].mid) != messageID) {
+                        (curMessageID = peerHistory.messages[i].mid) != messageID) {
                         if (!$scope.selectedMsgs[curMessageID]) {
                             $scope.selectedMsgs[curMessageID] = true
                             $scope.selectedCount++
@@ -2255,7 +2316,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         function selectedFlush() {
-            ErrorService.confirm({type: 'HISTORY_FLUSH'}).then(function () {
+            ErrorService.confirm({ type: 'HISTORY_FLUSH' }).then(function () {
                 AppMessagesManager.flushHistory($scope.curDialog.peerID, true).then(function () {
                     selectedCancel()
                 })
@@ -2298,7 +2359,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     isChannel: isBroadcast,
                     isSupergroup: isMegagroup,
                     isUsualGroup: isUsualGroup
-                }, {}, {revoke: false}).then(function (data) {
+                }, {}, { revoke: false }).then(function (data) {
                     AppMessagesManager.deleteMessages(selectedMessageIDs, data.revoke).then(function () {
                         selectedCancel()
                     })
@@ -2341,7 +2402,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 })
             }
             if (selectedMessageIDs.length) {
-                PeersSelectService.selectPeer({canSend: true}).then(function (peerStrings) {
+                PeersSelectService.selectPeer({ canSend: true }).then(function (peerStrings) {
                     selectedCancel()
                     if (Array.isArray(peerStrings) && peerStrings.length > 1) {
                         angular.forEach(peerStrings, function (peerString) {
@@ -2426,7 +2487,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 toggleMedia()
             } else {
                 if ($scope.curDialog.messageID) {
-                    $rootScope.$broadcast('history_focus', {peerString: $scope.curDialog.peer})
+                    $rootScope.$broadcast('history_focus', { peerString: $scope.curDialog.peer })
                 } else {
                     loadHistory(true)
                 }
@@ -2456,7 +2517,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }
             switch (button._) {
                 case 'keyboardButtonRequestPhone':
-                    ErrorService.confirm({type: 'BOT_ACCESS_PHONE'}).then(function () {
+                    ErrorService.confirm({ type: 'BOT_ACCESS_PHONE' }).then(function () {
                         var user = AppUsersManager.getSelf()
                         AppMessagesManager.sendOther(peerID, {
                             _: 'inputMediaContact',
@@ -2468,7 +2529,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     break
 
                 case 'keyboardButtonRequestGeoLocation':
-                    ErrorService.confirm({type: 'BOT_ACCESS_GEO'}).then(function () {
+                    ErrorService.confirm({ type: 'BOT_ACCESS_GEO' }).then(function () {
                         return GeoLocationManager.getPosition().then(function (coords) {
                             AppMessagesManager.sendOther(peerID, {
                                 _: 'inputMediaGeoPoint',
@@ -2508,7 +2569,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.$on('dialog_migrate', function (e, data) {
             if (data.migrateFrom == $scope.curDialog.peerID) {
                 var peerString = AppPeersManager.getPeerString(data.migrateTo)
-                $rootScope.$broadcast('history_focus', {peerString: peerString})
+                $rootScope.$broadcast('history_focus', { peerString: peerString })
             }
             historiesQueuePop(data.migrateFrom)
         })
@@ -2740,8 +2801,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     AppUsersManager.forceUserOnline(update.user_id)
                     if (AppUsersManager.hasUser(update.user_id) &&
                         $scope.curDialog.peerID == (update._ == 'updateUserTyping'
-                                ? update.user_id
-                                : -update.chat_id
+                            ? update.user_id
+                            : -update.chat_id
                         )) {
                         if ($scope.historyState.typing.indexOf(update.user_id) == -1) {
                             $scope.historyState.typing.push(update.user_id)
@@ -2824,7 +2885,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.$on('inline_bot_select', function (e, botID) {
             var bot = AppUsersManager.getUser(botID)
             $scope.draftMessage.text = '@' + bot.username + ' '
-            $scope.$broadcast('ui_peer_draft', {focus: true})
+            $scope.$broadcast('ui_peer_draft', { focus: true })
         })
 
         $scope.$on('inline_bots_popular', updateMentions)
@@ -2950,7 +3011,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 chatParticipantsPromise = $q.when([])
             }
 
-            $q.all({pop: inlineBotsPromise, chat: chatParticipantsPromise}).then(function (result) {
+            $q.all({ pop: inlineBotsPromise, chat: chatParticipantsPromise }).then(function (result) {
                 var done = {}
                 var ids = result.pop.concat(result.chat)
                 angular.forEach(ids, function (userID) {
@@ -3228,7 +3289,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             } else {
                 $scope.draftMessage.text = '/'
             }
-            $scope.$broadcast('ui_peer_draft', {focus: true})
+            $scope.$broadcast('ui_peer_draft', { focus: true })
             return cancelEvent($event)
         }
 
@@ -3256,8 +3317,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             var enabled = replyKeyboard &&
                 !replyKeyboard.pFlags.hidden &&
                 replyKeyboard._ == 'replyKeyboardMarkup'
-            $scope.$broadcast('ui_keyboard_update', {enabled: enabled})
-            $scope.$emit('ui_panel_update', {blur: enabled})
+            $scope.$broadcast('ui_keyboard_update', { enabled: enabled })
+            $scope.$emit('ui_panel_update', { blur: enabled })
         }
 
         function replyKeyboardToggle($event) {
@@ -3326,15 +3387,15 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                                 inlineResults.push({
                                     _: 'botInlineMediaResult',
                                     qID: '_sticker_' + doc.id,
-                                    pFlags: {sticker: true},
+                                    pFlags: { sticker: true },
                                     id: doc.id,
                                     type: 'sticker',
                                     document: doc,
-                                    send_message: {_: 'botInlineMessageMediaAuto'}
+                                    send_message: { _: 'botInlineMessageMediaAuto' }
                                 })
                             })
                             var botResults = {
-                                pFlags: {gallery: true},
+                                pFlags: { gallery: true },
                                 query_id: 0,
                                 results: inlineResults
                             }
@@ -3399,7 +3460,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }
             MtpApiManager.invokeApi('messages.setTyping', {
                 peer: AppPeersManager.getInputPeerByID($scope.curDialog.peerID),
-                action: {_: 'sendMessageTypingAction'}
+                action: { _: 'sendMessageTypingAction' }
             })['catch'](function (error) {
                 error.handled = true
             })
@@ -3533,13 +3594,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.supportedLocales = Config.I18n.supported
         $scope.langNames = Config.I18n.languages
         $scope.curLocale = Config.I18n.locale
-        $scope.form = {locale: Config.I18n.locale}
+        $scope.form = { locale: Config.I18n.locale }
 
         $scope.localeSelect = function localeSelect(newLocale) {
             newLocale = newLocale || $scope.form.locale
             if ($scope.curLocale !== newLocale) {
-                ErrorService.confirm({type: 'APPLY_LANG_WITH_RELOAD'}).then(function () {
-                    Storage.set({i18n_locale: newLocale}).then(function () {
+                ErrorService.confirm({ type: 'APPLY_LANG_WITH_RELOAD' }).then(function () {
+                    Storage.set({ i18n_locale: newLocale }).then(function () {
                         AppRuntimeManager.reload()
                     })
                 }, function () {
@@ -3570,7 +3631,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.forward = function () {
             var messageID = $scope.messageID
 
-            PeersSelectService.selectPeer({canSend: true}).then(function (peerString) {
+            PeersSelectService.selectPeer({ canSend: true }).then(function (peerString) {
                 $rootScope.$broadcast('history_focus', {
                     peerString: peerString,
                     attachment: {
@@ -3586,12 +3647,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             var peerID = AppMessagesManager.getMessagePeer(AppMessagesManager.getMessage(messageID))
             var peerString = AppPeersManager.getPeerString(peerID)
             $modalInstance.dismiss()
-            $rootScope.$broadcast('history_focus', {peerString: peerString, messageID: messageID})
+            $rootScope.$broadcast('history_focus', { peerString: peerString, messageID: messageID })
         }
 
         $scope['delete'] = function () {
             var messageID = $scope.messageID
-            ErrorService.confirm({type: 'MESSAGE_DELETE'}).then(function () {
+            ErrorService.confirm({ type: 'MESSAGE_DELETE' }).then(function () {
                 AppMessagesManager.deleteMessages([messageID])
             })
         }
@@ -3599,7 +3660,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         var peerID = AppMessagesManager.getMessagePeer(AppMessagesManager.getMessage($scope.messageID))
         var inputPeer = AppPeersManager.getInputPeerByID(peerID)
         var inputQuery = ''
-        var inputFilter = {_: 'inputMessagesFilterPhotos'}
+        var inputFilter = { _: 'inputMessagesFilterPhotos' }
         var list = [$scope.messageID]
         var preloaded = {}
         var maxID = $scope.messageID
@@ -3895,7 +3956,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.forward = function () {
-            PeersSelectService.selectPeer({confirm_type: 'FORWARD_PEER', canSend: true}).then(function (peerString) {
+            PeersSelectService.selectPeer({ confirm_type: 'FORWARD_PEER', canSend: true }).then(function (peerString) {
                 var peerID = AppPeersManager.getPeerID(peerString)
                 AppMessagesManager.sendOther(peerID, {
                     _: 'inputMediaPhoto',
@@ -3905,7 +3966,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                         access_hash: $scope.photo.access_hash
                     }
                 })
-                $rootScope.$broadcast('history_focus', {peerString: peerString})
+                $rootScope.$broadcast('history_focus', { peerString: peerString })
             })
         }
 
@@ -3919,10 +3980,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 movePosition($scope.nav.hasNext ? -1 : +1, true)
             }
 
-            ErrorService.confirm({type: 'PHOTO_DELETE'}).then(function () {
+            ErrorService.confirm({ type: 'PHOTO_DELETE' }).then(function () {
                 if (myUser && myUser.photo && myUser.photo.photo_id == photoID) {
                     MtpApiManager.invokeApi('photos.updateProfilePhoto', {
-                        id: {_: 'inputPhotoEmpty'}
+                        id: { _: 'inputPhotoEmpty' }
                     }).then(function (updateResult) {
                         ApiUpdatesManager.processUpdateMessage({
                             _: 'updateShort',
@@ -3938,7 +3999,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     })
                 } else {
                     MtpApiManager.invokeApi('photos.deletePhotos', {
-                        id: [{_: 'inputPhoto', id: photoID, access_hash: 0}]
+                        id: [{ _: 'inputPhoto', id: photoID, access_hash: 0 }]
                     }).then(onDeleted)
                 }
             })
@@ -3962,7 +4023,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.canDelete = isChannel ? chat.pFlags.creator : true
 
         $scope.forward = function () {
-            PeersSelectService.selectPeer({confirm_type: 'FORWARD_PEER', canSend: true}).then(function (peerString) {
+            PeersSelectService.selectPeer({ confirm_type: 'FORWARD_PEER', canSend: true }).then(function (peerString) {
                 var peerID = AppPeersManager.getPeerID(peerString)
                 AppMessagesManager.sendOther(peerID, {
                     _: 'inputMediaPhoto',
@@ -3972,29 +4033,29 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                         access_hash: $scope.photo.access_hash
                     }
                 })
-                $rootScope.$broadcast('history_focus', {peerString: peerString})
+                $rootScope.$broadcast('history_focus', { peerString: peerString })
             })
         }
 
         $scope['delete'] = function () {
-            ErrorService.confirm({type: 'PHOTO_DELETE'}).then(function () {
+            ErrorService.confirm({ type: 'PHOTO_DELETE' }).then(function () {
                 $scope.photo.updating = true
                 var apiPromise
                 if (AppChatsManager.isChannel($scope.chatID)) {
                     apiPromise = MtpApiManager.invokeApi('channels.editPhoto', {
                         channel: AppChatsManager.getChannelInput($scope.chatID),
-                        photo: {_: 'inputChatPhotoEmpty'}
+                        photo: { _: 'inputChatPhotoEmpty' }
                     })
                 } else {
                     apiPromise = MtpApiManager.invokeApi('messages.editChatPhoto', {
                         chat_id: AppChatsManager.getChatInput($scope.chatID),
-                        photo: {_: 'inputChatPhotoEmpty'}
+                        photo: { _: 'inputChatPhotoEmpty' }
                     })
                 }
                 apiPromise.then(function (updates) {
                     ApiUpdatesManager.processUpdateMessage(updates)
                     $modalInstance.dismiss()
-                    $rootScope.$broadcast('history_focus', {peerString: AppChatsManager.getChatString($scope.chatID)})
+                    $rootScope.$broadcast('history_focus', { peerString: AppChatsManager.getChatString($scope.chatID) })
                 })['finally'](function () {
                     $scope.photo.updating = false
                 })
@@ -4009,12 +4070,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     .controller('VideoModalController', function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppDocsManager, AppPeersManager, ErrorService) {
         $scope.video = AppDocsManager.wrapVideoForFull($scope.docID)
 
-        $scope.progress = {enabled: false}
+        $scope.progress = { enabled: false }
         $scope.player = {}
 
         $scope.forward = function () {
             var messageID = $scope.messageID
-            PeersSelectService.selectPeer({canSend: true}).then(function (peerString) {
+            PeersSelectService.selectPeer({ canSend: true }).then(function (peerString) {
                 $rootScope.$broadcast('history_focus', {
                     peerString: peerString,
                     attachment: {
@@ -4027,7 +4088,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         $scope['delete'] = function () {
             var messageID = $scope.messageID
-            ErrorService.confirm({type: 'MESSAGE_DELETE'}).then(function () {
+            ErrorService.confirm({ type: 'MESSAGE_DELETE' }).then(function () {
                 AppMessagesManager.deleteMessages([messageID])
             })
         }
@@ -4048,7 +4109,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         $scope.forward = function () {
             var messageID = $scope.messageID
-            PeersSelectService.selectPeer({canSend: true}).then(function (peerString) {
+            PeersSelectService.selectPeer({ canSend: true }).then(function (peerString) {
                 $rootScope.$broadcast('history_focus', {
                     peerString: peerString,
                     attachment: {
@@ -4061,7 +4122,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         $scope['delete'] = function () {
             var messageID = $scope.messageID
-            ErrorService.confirm({type: 'MESSAGE_DELETE'}).then(function () {
+            ErrorService.confirm({ type: 'MESSAGE_DELETE' }).then(function () {
                 AppMessagesManager.deleteMessages([messageID])
             })
         }
@@ -4084,7 +4145,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         $scope.forward = function () {
             var messageID = $scope.messageID
-            PeersSelectService.selectPeer({canSend: true}).then(function (peerString) {
+            PeersSelectService.selectPeer({ canSend: true }).then(function (peerString) {
                 $rootScope.$broadcast('history_focus', {
                     peerString: peerString,
                     attachment: {
@@ -4097,7 +4158,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         $scope['delete'] = function () {
             var messageID = $scope.messageID
-            ErrorService.confirm({type: 'MESSAGE_DELETE'}).then(function () {
+            ErrorService.confirm({ type: 'MESSAGE_DELETE' }).then(function () {
                 AppMessagesManager.deleteMessages([messageID])
             })
         }
@@ -4113,7 +4174,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.nav = {}
 
         $scope.forward = function (withMyScore) {
-            PeersSelectService.selectPeer({canSend: true, confirm_type: 'INVITE_TO_GAME'}).then(function (peerString) {
+            PeersSelectService.selectPeer({ canSend: true, confirm_type: 'INVITE_TO_GAME' }).then(function (peerString) {
                 var peerID = AppPeersManager.getPeerID(peerString)
                 AppMessagesManager.forwardMessages(peerID, [messageID], {
                     withMyScore: withMyScore
@@ -4138,7 +4199,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.user = AppUsersManager.getUser($scope.userID)
         $scope.blocked = false
 
-        $scope.settings = {notifications: true}
+        $scope.settings = { notifications: true }
 
         AppProfileManager.getProfile($scope.userID, $scope.override).then(function (userFull) {
             $scope.blocked = userFull.pFlags.blocked
@@ -4161,11 +4222,11 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         })
 
         $scope.goToHistory = function () {
-            $rootScope.$broadcast('history_focus', {peerString: peerString})
+            $rootScope.$broadcast('history_focus', { peerString: peerString })
         }
 
         $scope.flushHistory = function (justClear) {
-            ErrorService.confirm({type: justClear ? 'HISTORY_FLUSH' : 'HISTORY_FLUSH_AND_DELETE'}).then(function () {
+            ErrorService.confirm({ type: justClear ? 'HISTORY_FLUSH' : 'HISTORY_FLUSH_AND_DELETE' }).then(function () {
                 AppMessagesManager.flushHistory($scope.userID, justClear).then(function () {
                     if (justClear) {
                         $scope.goToHistory()
@@ -4211,7 +4272,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 var peerID = AppPeersManager.getPeerID(peerString)
                 var chatID = peerID < 0 ? -peerID : 0
                 AppMessagesManager.startBot($scope.user.id, chatID).then(function () {
-                    $rootScope.$broadcast('history_focus', {peerString: peerString})
+                    $rootScope.$broadcast('history_focus', { peerString: peerString })
                 })
             })
         }
@@ -4244,14 +4305,14 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     last_name: $scope.user.last_name,
                     user_id: $scope.user.id
                 })
-                $rootScope.$broadcast('history_focus', {peerString: peerString})
+                $rootScope.$broadcast('history_focus', { peerString: peerString })
             })
         }
     })
 
     .controller('ChatModalController', function ($scope, $modalInstance, $location, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {
         $scope.chatFull = AppChatsManager.wrapForFull($scope.chatID, {})
-        $scope.settings = {notifications: true}
+        $scope.settings = { notifications: true }
 
         $scope.maxParticipants = 200
 
@@ -4289,14 +4350,14 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         function onChatUpdated(updates) {
             ApiUpdatesManager.processUpdateMessage(updates)
-            $rootScope.$broadcast('history_focus', {peerString: $scope.chatFull.peerString})
+            $rootScope.$broadcast('history_focus', { peerString: $scope.chatFull.peerString })
         }
 
         $scope.leaveGroup = function () {
-            ErrorService.confirm({type: 'HISTORY_LEAVE_AND_FLUSH'}).then(function () {
+            ErrorService.confirm({ type: 'HISTORY_LEAVE_AND_FLUSH' }).then(function () {
                 MtpApiManager.invokeApi('messages.deleteChatUser', {
                     chat_id: AppChatsManager.getChatInput($scope.chatID),
-                    user_id: {_: 'inputUserSelf'}
+                    user_id: { _: 'inputUserSelf' }
                 }).then(function (updates) {
                     ApiUpdatesManager.processUpdateMessage(updates)
                     AppMessagesManager.flushHistory(-$scope.chatID).then(function () {
@@ -4313,7 +4374,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 disabled.push(participant.user_id)
             })
 
-            ContactsSelectService.selectContacts({disabled: disabled}).then(function (userIDs) {
+            ContactsSelectService.selectContacts({ disabled: disabled }).then(function (userIDs) {
                 angular.forEach(userIDs, function (userID) {
                     MtpApiManager.invokeApi('messages.addChatUser', {
                         chat_id: AppChatsManager.getChatInput($scope.chatID),
@@ -4324,12 +4385,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     })
                 })
 
-                $rootScope.$broadcast('history_focus', {peerString: $scope.chatFull.peerString})
+                $rootScope.$broadcast('history_focus', { peerString: $scope.chatFull.peerString })
             })
         }
 
         $scope.migrateToSuperGroup = function () {
-            ErrorService.confirm({type: 'SUPERGROUP_MIGRATE'}).then(function () {
+            ErrorService.confirm({ type: 'SUPERGROUP_MIGRATE' }).then(function () {
                 MtpApiManager.invokeApi('messages.migrateChat', {
                     chat_id: AppChatsManager.getChatInput($scope.chatID)
                 }).then(onChatUpdated)
@@ -4344,10 +4405,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.flushHistory = function (justClear) {
-            ErrorService.confirm({type: justClear ? 'HISTORY_FLUSH' : 'HISTORY_FLUSH_AND_DELETE'}).then(function () {
+            ErrorService.confirm({ type: justClear ? 'HISTORY_FLUSH' : 'HISTORY_FLUSH_AND_DELETE' }).then(function () {
                 AppMessagesManager.flushHistory(-$scope.chatID, justClear).then(function () {
                     if (justClear) {
-                        $rootScope.$broadcast('history_focus', {peerString: $scope.chatFull.peerString})
+                        $rootScope.$broadcast('history_focus', { peerString: $scope.chatFull.peerString })
                     } else {
                         $modalInstance.close()
                         $location.url('/im')
@@ -4394,7 +4455,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             $scope.photo.updating = true
             MtpApiManager.invokeApi('messages.editChatPhoto', {
                 chat_id: AppChatsManager.getChatInput($scope.chatID),
-                photo: {_: 'inputChatPhotoEmpty'}
+                photo: { _: 'inputChatPhotoEmpty' }
             }).then(onChatUpdated)['finally'](function () {
                 $scope.photo.updating = false
             })
@@ -4419,7 +4480,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     .controller('ChannelModalController', function ($scope, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {
         $scope.chatFull = AppChatsManager.wrapForFull($scope.chatID, {})
-        $scope.settings = {notifications: true}
+        $scope.settings = { notifications: true }
         $scope.isMegagroup = AppChatsManager.isMegagroup($scope.chatID)
 
         AppProfileManager.getChannelFull($scope.chatID, true).then(function (chatFull) {
@@ -4449,7 +4510,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 $scope.chatFull.exported_invite &&
                 $scope.chatFull.exported_invite._ == 'chatInviteEmpty') {
                 AppProfileManager.getChatInviteLink($scope.chatID, true).then(function (link) {
-                    $scope.chatFull.exported_invite = {_: 'chatInviteExported', link: link}
+                    $scope.chatFull.exported_invite = { _: 'chatInviteExported', link: link }
                 })
             }
         })
@@ -4462,7 +4523,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         function onChatUpdated(updates) {
             ApiUpdatesManager.processUpdateMessage(updates)
-            $rootScope.$broadcast('history_focus', {peerString: $scope.chatFull.peerString})
+            $rootScope.$broadcast('history_focus', { peerString: $scope.chatFull.peerString })
             if (updates &&
                 updates.updates &&
                 updates.updates.length &&
@@ -4472,7 +4533,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.leaveChannel = function () {
-            return ErrorService.confirm({type: $scope.isMegagroup ? 'MEGAGROUP_LEAVE' : 'CHANNEL_LEAVE'}).then(function () {
+            return ErrorService.confirm({ type: $scope.isMegagroup ? 'MEGAGROUP_LEAVE' : 'CHANNEL_LEAVE' }).then(function () {
                 MtpApiManager.invokeApi('channels.leaveChannel', {
                     channel: AppChatsManager.getChannelInput($scope.chatID)
                 }).then(onChatUpdated)
@@ -4480,7 +4541,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.deleteChannel = function () {
-            return ErrorService.confirm({type: $scope.isMegagroup ? 'MEGAGROUP_DELETE' : 'CHANNEL_DELETE'}).then(function () {
+            return ErrorService.confirm({ type: $scope.isMegagroup ? 'MEGAGROUP_DELETE' : 'CHANNEL_DELETE' }).then(function () {
                 MtpApiManager.invokeApi('channels.deleteChannel', {
                     channel: AppChatsManager.getChannelInput($scope.chatID)
                 }).then(onChatUpdated)
@@ -4488,9 +4549,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.flushHistory = function () {
-            ErrorService.confirm({type: 'HISTORY_FLUSH'}).then(function () {
+            ErrorService.confirm({ type: 'HISTORY_FLUSH' }).then(function () {
                 AppMessagesManager.flushHistory(-$scope.chatID).then(function () {
-                    $rootScope.$broadcast('history_focus', {peerString: $scope.chatFull.peerString})
+                    $rootScope.$broadcast('history_focus', { peerString: $scope.chatFull.peerString })
                 })
             })
         }
@@ -4507,7 +4568,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 disabled.push(participant.user_id)
             })
 
-            ContactsSelectService.selectContacts({disabled: disabled}).then(function (userIDs) {
+            ContactsSelectService.selectContacts({ disabled: disabled }).then(function (userIDs) {
                 var inputUsers = []
                 angular.forEach(userIDs, function (userID) {
                     inputUsers.push(AppUsersManager.getUserInput(userID))
@@ -4523,7 +4584,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             MtpApiManager.invokeApi('channels.editBanned', {
                 channel: AppChatsManager.getChannelInput($scope.chatID),
                 user_id: AppUsersManager.getUserInput(userID),
-                banned_rights: {_: 'channelBannedRights', flags: 1, until_date: 0}
+                banned_rights: { _: 'channelBannedRights', flags: 1, until_date: 0 }
             }).then(onChatUpdated)
         }
 
@@ -4567,7 +4628,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             $scope.photo.updating = true
             MtpApiManager.invokeApi('channels.editPhoto', {
                 channel: AppChatsManager.getChannelInput($scope.chatID),
-                photo: {_: 'inputChatPhotoEmpty'}
+                photo: { _: 'inputChatPhotoEmpty' }
             }).then(onChatUpdated)['finally'](function () {
                 $scope.photo.updating = false
             })
@@ -4586,7 +4647,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.goToHistory = function () {
-            $rootScope.$broadcast('history_focus', {peerString: $scope.chatFull.peerString})
+            $rootScope.$broadcast('history_focus', { peerString: $scope.chatFull.peerString })
         }
 
         $scope.hasRights = function (action) {
@@ -4604,7 +4665,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         })
 
         MtpApiManager.invokeApi('users.getFullUser', {
-            id: {_: 'inputUserSelf'}
+            id: { _: 'inputUserSelf' }
         }).then(function (userFullResult) {
             AppUsersManager.saveApiUser(userFullResult.user)
             if (userFullResult.profile_photo) {
@@ -4614,12 +4675,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }
         })
 
-        $scope.notify = {volume: 0.5}
+        $scope.notify = { volume: 0.5 }
         $scope.send = {}
 
         $scope.$watch('photo.file', onPhotoSelected)
 
-        $scope.password = {_: 'account.noPassword'}
+        $scope.password = { _: 'account.noPassword' }
         updatePasswordState()
         var updatePasswordTimeout = false
         var stopped = false
@@ -4627,8 +4688,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.changePassword = function (options) {
             options = options || {}
             if (options.action == 'cancel_email') {
-                return ErrorService.confirm({type: 'PASSWORD_ABORT_SETUP'}).then(function () {
-                    PasswordManager.updateSettings($scope.password, {email: ''}).then(updatePasswordState)
+                return ErrorService.confirm({ type: 'PASSWORD_ABORT_SETUP' }).then(function () {
+                    PasswordManager.updateSettings($scope.password, { email: '' }).then(updatePasswordState)
                 })
             }
             var scope = $rootScope.$new()
@@ -4677,7 +4738,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 MtpApiManager.invokeApi('photos.uploadProfilePhoto', {
                     file: inputFile,
                     caption: '',
-                    geo_point: {_: 'inputGeoPointEmpty'}
+                    geo_point: { _: 'inputGeoPointEmpty' }
                 }).then(function (updateResult) {
                     AppUsersManager.saveApiUsers(updateResult.users)
                     MtpApiManager.getUserID().then(function (id) {
@@ -4705,7 +4766,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.deletePhoto = function () {
             $scope.photo.updating = true
             MtpApiManager.invokeApi('photos.updateProfilePhoto', {
-                id: {_: 'inputPhotoEmpty'}
+                id: { _: 'inputPhotoEmpty' }
             }).then(function (updateResult) {
                 MtpApiManager.getUserID().then(function (id) {
                     ApiUpdatesManager.processUpdateMessage({
@@ -4742,7 +4803,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.terminateSessions = function () {
-            ErrorService.confirm({type: 'TERMINATE_SESSIONS'}).then(function () {
+            ErrorService.confirm({ type: 'TERMINATE_SESSIONS' }).then(function () {
                 MtpApiManager.invokeApi('auth.resetAuthorizations', {})
             })
         }
@@ -4780,7 +4841,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             var testSoundPromise
             $scope.$watch('notify.volume', function (newValue, oldValue) {
                 if (newValue !== oldValue) {
-                    Storage.set({notify_volume: newValue})
+                    Storage.set({ notify_volume: newValue })
                     $rootScope.$broadcast('settings_changed')
                     NotificationsManager.clear()
 
@@ -4799,7 +4860,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 if ($scope.notify.desktop) {
                     Storage.remove('notify_nodesktop')
                 } else {
-                    Storage.set({notify_nodesktop: true})
+                    Storage.set({ notify_nodesktop: true })
                 }
                 $rootScope.$broadcast('settings_changed')
             }
@@ -4810,7 +4871,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 if ($scope.notify.push) {
                     Storage.remove('notify_nopush')
                 } else {
-                    Storage.set({notify_nopush: true})
+                    Storage.set({ notify_nopush: true })
                 }
                 $rootScope.$broadcast('settings_changed')
             }
@@ -4821,7 +4882,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 if ($scope.notify.preview) {
                     Storage.remove('notify_nopreview')
                 } else {
-                    Storage.set({notify_nopreview: true})
+                    Storage.set({ notify_nopreview: true })
                 }
                 $rootScope.$broadcast('settings_changed')
             }
@@ -4832,7 +4893,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 if ($scope.notify.vibrate) {
                     Storage.remove('notify_novibrate')
                 } else {
-                    Storage.set({notify_novibrate: true})
+                    Storage.set({ notify_novibrate: true })
                 }
                 $rootScope.$broadcast('settings_changed')
             }
@@ -4843,7 +4904,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 if ($scope.send.enter) {
                     Storage.remove('send_ctrlenter')
                 } else {
-                    Storage.set({send_ctrlenter: true})
+                    Storage.set({ send_ctrlenter: true })
                 }
                 $rootScope.$broadcast('settings_changed')
             }
@@ -4854,7 +4915,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.logOut = function () {
-            ErrorService.confirm({type: 'LOGOUT'}).then(function () {
+            ErrorService.confirm({ type: 'LOGOUT' }).then(function () {
                 MtpApiManager.logOut().then(function () {
                     location.hash = '/login'
                     AppRuntimeManager.reload()
@@ -4933,12 +4994,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             }, function (error) {
                 switch (error.type) {
                     case 'FIRSTNAME_INVALID':
-                        $scope.error = {field: 'first_name'}
+                        $scope.error = { field: 'first_name' }
                         error.handled = true
                         break
 
                     case 'LASTNAME_INVALID':
-                        $scope.error = {field: 'last_name'}
+                        $scope.error = { field: 'last_name' }
                         error.handled = true
                         break
 
@@ -4997,9 +5058,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     return
                 }
                 if (valid) {
-                    $scope.checked = {success: true}
+                    $scope.checked = { success: true }
                 } else {
-                    $scope.checked = {error: true}
+                    $scope.checked = { error: true }
                 }
             }, function (error) {
                 if ($scope.profile.username !== newVal) {
@@ -5007,7 +5068,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 }
                 switch (error.type) {
                     case 'USERNAME_INVALID':
-                        $scope.checked = {error: true}
+                        $scope.checked = { error: true }
                         error.handled = true
                         break
                 }
@@ -5016,7 +5077,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     })
 
     .controller('SessionsListModalController', function ($scope, $q, $timeout, _, MtpApiManager, ErrorService, $modalInstance) {
-        $scope.slice = {limit: 20, limitDelta: 20}
+        $scope.slice = { limit: 20, limitDelta: 20 }
 
         var updateSessionsTimeout = false
         var stopped = false
@@ -5048,13 +5109,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         $scope.terminateSession = function (hash) {
-            ErrorService.confirm({type: 'TERMINATE_SESSION'}).then(function () {
-                MtpApiManager.invokeApi('account.resetAuthorization', {hash: hash}).then(updateSessions)
+            ErrorService.confirm({ type: 'TERMINATE_SESSION' }).then(function () {
+                MtpApiManager.invokeApi('account.resetAuthorization', { hash: hash }).then(updateSessions)
             })
         }
 
         $scope.terminateAllSessions = function () {
-            ErrorService.confirm({type: 'TERMINATE_SESSIONS'}).then(function () {
+            ErrorService.confirm({ type: 'TERMINATE_SESSIONS' }).then(function () {
                 MtpApiManager.invokeApi('auth.resetAuthorizations', {})
             })
         }
@@ -5095,7 +5156,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 }
                 confirmPromise = $scope.passwordSettings.email
                     ? $q.when()
-                    : ErrorService.confirm({type: 'RECOVERY_EMAIL_EMPTY'})
+                    : ErrorService.confirm({ type: 'RECOVERY_EMAIL_EMPTY' })
             }
 
             $scope.passwordSettings.loading = true
@@ -5209,7 +5270,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.contacts = []
         $scope.foundPeers = []
         $scope.search = {}
-        $scope.slice = {limit: 20, limitDelta: 20}
+        $scope.slice = { limit: 20, limitDelta: 20 }
 
         var jump = 0
         var i
@@ -5263,7 +5324,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             if (query && query.length >= 2) {
                 $timeout(function () {
                     if (curJump != jump) return
-                    MtpApiManager.invokeApi('contacts.search', {q: query, limit: 10}).then(function (result) {
+                    MtpApiManager.invokeApi('contacts.search', { q: query, limit: 10 }).then(function (result) {
                         AppUsersManager.saveApiUsers(result.users)
                         if (curJump != jump) return
                         var myPeersLen = result.my_results.length
@@ -5363,9 +5424,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.selectedCount = 0
 
         if ($scope.shareLinkPromise) {
-            $scope.shareLink = {loading: true}
+            $scope.shareLink = { loading: true }
             $scope.shareLinkPromise.then(function (url) {
-                $scope.shareLink = {url: url}
+                $scope.shareLink = { url: url }
             }, function () {
                 delete $scope.shareLink
             })
@@ -5447,7 +5508,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     })
 
     .controller('ChatCreateModalController', function ($scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, ApiUpdatesManager) {
-        $scope.group = {name: ''}
+        $scope.group = { name: '' }
 
 
 
@@ -5486,7 +5547,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     .controller('ChatEditModalController', function ($scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, ApiUpdatesManager) {
         var chat = AppChatsManager.getChat($scope.chatID)
-        $scope.group = {name: chat.title}
+        $scope.group = { name: chat.title }
 
         $scope.updateGroup = function () {
             if (!$scope.group.name) {
@@ -5514,7 +5575,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             return apiPromise.then(function (updates) {
                 ApiUpdatesManager.processUpdateMessage(updates)
                 var peerString = AppChatsManager.getChatString($scope.chatID)
-                $rootScope.$broadcast('history_focus', {peerString: peerString})
+                $rootScope.$broadcast('history_focus', { peerString: peerString })
             })['finally'](function () {
                 delete $scope.group.updating
             })
@@ -5523,8 +5584,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     .controller('ChannelEditModalController', function ($q, $scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, AppProfileManager, ApiUpdatesManager) {
         var channel = AppChatsManager.getChat($scope.chatID)
-        var initial = {title: channel.title}
-        $scope.channel = {title: channel.title}
+        var initial = { title: channel.title }
+        $scope.channel = { title: channel.title }
 
         AppProfileManager.getChannelFull($scope.chatID).then(function (channelFull) {
             initial.about = channelFull.about
@@ -5546,7 +5607,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             $scope.channel.updating = true
             return $q.all(promises).then(function () {
                 var peerString = AppChatsManager.getChatString($scope.chatID)
-                $rootScope.$broadcast('history_focus', {peerString: peerString})
+                $rootScope.$broadcast('history_focus', { peerString: peerString })
             })['finally'](function () {
                 delete $scope.channel.updating
             })
@@ -5570,7 +5631,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     })
 
     .controller('ChatInviteLinkModalController', function (_, $scope, $timeout, $modalInstance, AppChatsManager, AppProfileManager, ErrorService) {
-        $scope.exportedInvite = {link: _('group_invite_link_loading_raw')}
+        $scope.exportedInvite = { link: _('group_invite_link_loading_raw') }
 
         var isChannel = AppChatsManager.isChannel($scope.chatID)
         var isMegagroup = AppChatsManager.isMegagroup($scope.chatID)
@@ -5584,7 +5645,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         function updateLink(force) {
             var chat = AppChatsManager.getChat($scope.chatID)
             if (chat.username) {
-                $scope.exportedInvite = {link: 'https://t.me/' + chat.username, short: true}
+                $scope.exportedInvite = { link: 'https://t.me/' + chat.username, short: true }
                 selectLink()
                 return
             }
@@ -5592,7 +5653,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 $scope.exportedInvite.revoking = true
             }
             AppProfileManager.getChatInviteLink($scope.chatID, force).then(function (link) {
-                $scope.exportedInvite = {link: link, canRevoke: true}
+                $scope.exportedInvite = { link: link, canRevoke: true }
                 selectLink()
             })['finally'](function () {
                 delete $scope.exportedInvite.revoking
@@ -5619,7 +5680,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         $scope.doImport = function () {
             if ($scope.importContact && $scope.importContact.phone) {
-                $scope.progress = {enabled: true}
+                $scope.progress = { enabled: true }
                 AppUsersManager.importContact(
                     $scope.importContact.phone,
                     $scope.importContact.first_name || '',
@@ -5627,7 +5688,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 ).then(function (foundUserID) {
                     if (!foundUserID) {
                         ErrorService.show({
-                            error: {code: 404, type: 'USER_NOT_USING_TELEGRAM'}
+                            error: { code: 404, type: 'USER_NOT_USING_TELEGRAM' }
                         })
                     }
                     $modalInstance.close(foundUserID)
@@ -5650,7 +5711,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     .controller('CountrySelectModalController', function ($scope, $modalInstance, $rootScope, _) {
         $scope.search = {}
-        $scope.slice = {limit: 20, limitDelta: 20}
+        $scope.slice = { limit: 20, limitDelta: 20 }
 
         var searchIndex = SearchIndexManager.createIndex()
 
@@ -5697,8 +5758,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.phonebook = []
         $scope.selectedContacts = {}
         $scope.selectedCount = 0
-        $scope.slice = {limit: 20, limitDelta: 20}
-        $scope.progress = {enabled: false}
+        $scope.slice = { limit: 20, limitDelta: 20 }
+        $scope.progress = { enabled: false }
         $scope.multiSelect = true
 
         var searchIndex = SearchIndexManager.createIndex()
@@ -5714,7 +5775,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             updateList()
         }, function (error) {
             ErrorService.show({
-                error: {code: 403, type: 'PHONEBOOK_GET_CONTACTS_FAILED', originalError: error}
+                error: { code: 403, type: 'PHONEBOOK_GET_CONTACTS_FAILED', originalError: error }
             })
         })
 
@@ -5789,7 +5850,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 AppUsersManager.importContacts(selectedContacts).then(function (foundContacts) {
                     if (!foundContacts.length) {
                         ErrorService.show({
-                            error: {code: 404, type: 'USERS_NOT_USING_TELEGRAM'}
+                            error: { code: 404, type: 'USERS_NOT_USING_TELEGRAM' }
                         })
                     }
                     $modalInstance.close(foundContacts)
@@ -5801,7 +5862,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     })
 
     .controller('StickersetModalController', function ($scope, $rootScope, $modalInstance, MtpApiManager, RichTextProcessor, AppStickersManager, AppDocsManager, AppMessagesManager, LocationParamsService) {
-        $scope.slice = {limit: 20, limitDelta: 20}
+        $scope.slice = { limit: 20, limitDelta: 20 }
 
         var fullSet
 
@@ -5822,7 +5883,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                     emojiIconSize: 26
                 })
                 var dim = calcImageInBox(doc.w, doc.h, 192, 192)
-                $scope.stickerDimensions[doc.id] = {width: dim.w, height: dim.h}
+                $scope.stickerDimensions[doc.id] = { width: dim.w, height: dim.h }
             })
         })
 

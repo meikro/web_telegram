@@ -354,6 +354,17 @@ angular.module('myApp.directives', ['myApp.filters'])
       templateUrl: templateUrl('message_media')
     }
   })
+    .directive('uploadfile', function () {
+        return {
+            restrict: 'A',
+            link: function(scope, element) {
+
+                element.bind('click', function(e) {
+                    angular.element(e.target).siblings('#upload').trigger('click');
+                });
+            }
+        };
+    })
   .directive('myMessagePhoto', function (AppPhotosManager) {
     return {
       scope: {

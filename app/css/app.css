@@ -20,6 +20,9 @@ body.non_osx {
   /*box-shadow:none;*/
   background: #fff;
 }
+.layui-layer-page div.layui-layer-content{
+  overflow: hidden;
+}
 h1,
 h2,
 h3,
