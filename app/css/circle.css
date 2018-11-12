@@ -268,7 +268,7 @@ ul, ol {
     border-color: #adadad;
 }
 .camer-icon{
-    background: url(/img/icons/camare-icon.png);
+    background: url(../img/icons/camare-icon.png);
     display: block;
     width: 25px;
     height: 25px;
